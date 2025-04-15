@@ -20,13 +20,9 @@ function App() {
   const inactivityTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const decreaseTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const clearTimers = () => {
+  const resetInactivity = () => {
     if (inactivityTimer.current) clearInterval(inactivityTimer.current);
     if (decreaseTimer.current) clearInterval(decreaseTimer.current);
-  };
-
-  const resetInactivity = () => {
-    clearTimers();
     setInactivitySeconds(0);
 
     inactivityTimer.current = setInterval(() => {
@@ -56,6 +52,13 @@ function App() {
     }, item.value * DISABLE_TIME);
   };
 
+  useEffect(() => {
+    if (inactivitySeconds === INACTIVITY_TIME) {
+      if (inactivityTimer.current) clearInterval(inactivityTimer.current);
+      startDecreasing();
+    }
+  }, [inactivitySeconds]);
+
   const handleAddButton = () => {
     const newButton: ButtonItem = {
       id: buttons.length + 1,
@@ -64,13 +67,6 @@ function App() {
     };
     setButtons((prev) => [...prev, newButton]);
   };
-
-  useEffect(() => {
-    if (inactivitySeconds === INACTIVITY_TIME) {
-      clearTimers();
-      startDecreasing();
-    }
-  }, [inactivitySeconds]);
 
   return (
     <Container maxWidth="sm" className="container">
